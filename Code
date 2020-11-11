@@ -1,0 +1,223 @@
+import java.io.*; 
+import java.util.*; 
+/*
+ * Mercedes Moore
+ * APCS A
+ * DNA Lab Assignment
+ */
+
+class GeneticCodeDecypher {
+	private char[] hashCode; 
+	private String protein; 
+	private String geneticCode; 
+	
+	public GeneticCodeDecypher(String newProtein, String newGeneticCode) {
+		hashCode = new char[64]; 
+      eraseHash(); 
+		protein = newProtein; 
+		geneticCode = newGeneticCode; 
+      geneticCode=normalize();   
+	}
+	public String toString() {
+		return super.toString() + "(<" + protein + ">)" + "(<" + geneticCode + ">)"; 
+	}
+	public String normalize() {
+		String normalString = "";
+		for (int pos = 0; pos < geneticCode.length(); pos++) {
+			char testChar = geneticCode.charAt(pos); 
+			if (testChar != ' ') {
+				normalString = normalString + testChar; 
+			}
+		}
+		return normalString; 
+	}
+
+	public int hashFunction(String aminoAcid) {
+		String codeToDigit = ""; 
+		int hashPos = 0; 
+	for (int pos = 0; pos < aminoAcid.length(); pos++) {
+			int testChar2 = aminoAcid.charAt(pos);
+			
+			if (testChar2 == 'a') {
+				codeToDigit = '0'+codeToDigit; 
+			}
+			else if (testChar2== 'c') {
+				codeToDigit = '1'+codeToDigit;
+			}
+			else if (testChar2 == 'g') {
+				codeToDigit = '2'+codeToDigit;
+			}
+			else {
+				codeToDigit = '3'+ codeToDigit;
+			}
+		}
+		
+		int d1 =  Character.getNumericValue(codeToDigit.charAt(0));
+		int d2 = Character.getNumericValue(codeToDigit.charAt(1));
+		int d3 = Character.getNumericValue(codeToDigit.charAt(2)); 
+		
+		hashPos = d1*1 + d2*4 + d3*16; 
+		return hashPos; 
+	}
+	
+   
+	public String unHashFunction(int hashPos) {
+		int current = 0; 
+		String newAminoAcid = ""; 
+		for (int counter=0; counter<3;counter++)                                    ///while (hashPos > 0) {
+      {
+			 current = hashPos % 4; 
+			 if (current == 0) {
+				 //newAminoAcid = newAminoAcid + 'a';
+             newAminoAcid =  'a'+ newAminoAcid;
+			 }
+			 else if (current == 1) {
+				 //newAminoAcid = newAminoAcid + 'c'; 
+             newAminoAcid='c'+newAminoAcid;
+			 }
+			 else if (current == 2) {
+				 //newAminoAcid = newAminoAcid + 'g';
+             newAminoAcid='g'+newAminoAcid;
+			 }
+			 else if (current == 3) {
+				// newAminoAcid = newAminoAcid + 't';
+             newAminoAcid='t'+newAminoAcid;
+			 }
+			 else {
+				 newAminoAcid = newAminoAcid; 
+			 }
+						
+			hashPos = hashPos / 4; 
+		}
+		
+		return newAminoAcid;
+		
+	}
+	
+	public void eraseHash() {
+		for (int pos = 0; pos < hashCode.length; pos++) {
+			hashCode[pos] = ' '; 
+		}
+	}
+	
+	public boolean findGeneticMatch (int startingPos) {
+		int endPos = 0;
+		String currentAmino = ""; 
+		int currentHashPos = 0;
+		
+			for(int pos = 0; pos < protein.length(); pos++) 
+         {
+            //get three letter genetic code
+            endPos = startingPos + 3;
+				currentAmino = geneticCode.substring(startingPos, endPos); 
+            //find hashPos for this code
+				currentHashPos = hashFunction(currentAmino); 
+          
+            //if hashpos is in the table and empty, write the current hashPos there 
+   			if (hashCode[currentHashPos] == ' ') 
+   			{
+               hashCode[currentHashPos]=protein.charAt(pos);
+   				startingPos = startingPos + 3;
+   			}
+            else if (hashCode[currentHashPos] == protein.charAt(pos))
+            {
+               startingPos = startingPos + 3; 
+            } 
+            //if full do nothing 
+   			else 
+   			{
+               //System.out.println("Hash table");
+               //System.out.println("Collision at "+currentHashPos);
+               //printHash();
+   			   return false;
+              
+   			}
+			}
+		return true; 
+	}
+   
+   public void printHash()
+   {
+      for (int pos=0;pos<hashCode.length;pos++)
+      {
+         if(hashCode[pos]!=' ')
+         {
+            System.out.println(hashCode[pos]+ "("+ unHashFunction(pos)+")");
+         }
+      }
+  }
+  
+  public void searchGeneticCode() 
+  {
+      for (int pos = 0; pos < geneticCode.length() - (protein.length()*3); pos++)
+         {
+            if(findGeneticMatch(pos) == true)
+            {
+               //System.out.println("found");
+               return;
+            }
+            else
+            {
+            eraseHash();
+            }
+         }
+         //System.out.println("not found");
+   }
+  
+}
+public class DNALab {
+
+	public static void main(String[] args) throws FileNotFoundException{
+   
+    
+		
+		//Create a file tied to protein1.txt
+		
+      //remember to go back and change file pathways when on mac
+		//File a = new File("C:/Users/Administrator/Desktop/Mercedes/protein1.txt"); 
+		//Scanner in1 = new Scanner(a); 
+	//	String myProtein = in1.nextLine(); 
+		
+		//Create a scanner object tied to geneticSequence.txt 
+		
+      //remember to go back and change file pathways when on mac
+		//File b = new File("C:/Users/Administrator/Desktop/Mercedes/geneticSequence1.txt");
+		//Scanner in2 = new Scanner(b);
+		//String myGeneticSequence = in2.nextLine(); 
+		
+		/*System.out.println(myProtein.toString());
+		System.out.println(myGeneticSequence.toString()); */
+		
+		//GeneticCodeDecypher testOne = new GeneticCodeDecypher(myProtein, myGeneticSequence);
+      //System.out.println(testOne);
+		
+		//System.out.println(testOne.normalize()); 
+		
+		//System.out.println(testOne.hashFunction("gct"));
+     
+		//System.out.println(testOne.unHashFunction(54));*/
+		
+      //pass in a starting position of 0 using protein1 and geneticsequence1 to the findGeneticMatch() method. Your method should return false. try again witha  starting psoition of 10 and your method should produce true. 
+      //System.out.println(testOne.findGeneticMatch(0)); 
+      //testOne.eraseHash(); 
+      //System.out.println(testOne.findGeneticMatch(10)); 
+      //testOne.eraseHash(); 
+     // testOne.searchGeneticCode(); 
+      //testOne.printHash();
+      
+      File c = new File("C:/Users/Administrator/Desktop/Mercedes/protein2.txt");
+      Scanner in3 = new Scanner (c); 
+      String myProtein2 = in3.nextLine(); 
+      
+      File d = new File("C:/Users/Administrator/Desktop/Mercedes/geneticSequence2.txt"); 
+      Scanner in4 = new Scanner (d); 
+      String myGeneticSequence2 = in4.nextLine(); 
+      
+      GeneticCodeDecypher testTwo = new GeneticCodeDecypher(myProtein2, myGeneticSequence2); 
+      
+      System.out.println(testTwo); 
+      testTwo.searchGeneticCode();
+      testTwo.printHash(); 
+	}
+
+}
